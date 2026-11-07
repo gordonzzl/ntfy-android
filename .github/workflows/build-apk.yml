@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       topic_name:
-        description: '请输入你要打包的校区主题名 (例如: school_suzhou 或 school_kunshan)'
+        description: '请输入你要打包的校区主题名 (例如: school_suzhou)'
         required: true
         default: 'school_suzhou'
 
@@ -23,19 +23,19 @@ jobs:
           java-version: '17'
 
       - name: Inject Dynamic Topic
-        # 核心逻辑：在编译前，把 Kotlin 代码里的占位符替换成你输入的参数
         run: |
           sed -i "s/BUILD_TIME_TOPIC_PLACEHOLDER/${{ github.event.inputs.topic_name }}/g" app/src/main/java/io/heckel/ntfy/ui/MainActivity.kt
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build APK (PlayNoGoogle Release)
-        run: ./gradlew assemblePlayNoGoogleRelease
+      # 这里的编译命令已修改为官方最新的纯净版任务：assembleFossRelease
+      - name: Build APK (FOSS Release)
+        run: ./gradlew assembleFossRelease
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          # 打包出来的压缩包名字也会带上主题名，方便你区分不同校区的包！
           name: rider_apk_${{ github.event.inputs.topic_name }}
-          path: app/build/outputs/apk/playNoGoogle/release/*-unsigned.apk
+          # 这里的导出路径也对应修改为 foss
+          path: app/build/outputs/apk/foss/release/*-unsigned.apk
