@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       topic_name:
-        description: '请输入你要打包的校区主题名 (例如: school_suzhou)'
+        description: '请输入你要打包的校区主题名 (例如: sc_137)'
         required: true
-        default: 'school_suzhou'
+        default: 'sc_'
 
 jobs:
   build:
