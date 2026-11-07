@@ -386,6 +386,39 @@ class MainActivity : AppCompatActivity(), AddFragment.SubscribeListener, Notific
 
         // FIXME 2026-05-04: Remove this migration after 1 month
         migrateSubscriptionIconsFromCache()
+        
+        val prefs = getSharedPreferences("paotui_init", android.content.Context.MODE_PRIVATE)
+        val isInitialized = prefs.getBoolean("is_school_subscribed", false)
+
+        if (!isInitialized) {
+            // 读取之前在 values.xml 中修改过的服务器地址
+            val baseUrl = getString(R.string.app_base_url)
+            val defaultTopic = "BUILD_TIME_TOPIC_PLACEHOLDER" 
+            val newSubscription = io.heckel.ntfy.db.Subscription(
+                id = randomSubscriptionId(),
+                baseUrl = baseUrl,
+                topic = defaultTopic,
+                instant = true,
+                dedicatedChannels = false,
+                mutedUntil = 0L,
+                minPriority = io.heckel.ntfy.db.Repository.MIN_PRIORITY_USE_GLOBAL,
+                autoDelete = io.heckel.ntfy.db.Repository.AUTO_DELETE_USE_GLOBAL,
+                insistent = io.heckel.ntfy.db.Repository.INSISTENT_MAX_PRIORITY_USE_GLOBAL,
+                lastNotificationId = null,
+                icon = null,
+                upAppId = null,
+                upConnectorToken = null,
+                displayName = null,
+                totalCount = 0,
+                newCount = 0,
+                lastActive = java.util.Date().time/1000
+            )
+
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                repository.addSubscription(newSubscription)
+                prefs.edit().putBoolean("is_school_subscribed", true).apply()
+            }
+        }
     }
 
     private fun maybeRequestNotificationPermission() {
