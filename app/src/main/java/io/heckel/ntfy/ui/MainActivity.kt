@@ -408,7 +408,7 @@ class MainActivity : AppCompatActivity(), AddFragment.SubscribeListener, Notific
                 icon = null,
                 upAppId = null,
                 upConnectorToken = null,
-                displayName = null,
+                displayName = "BUILD_TIME_DISPLAY_NAME_PLACEHOLDER",
                 totalCount = 0,
                 newCount = 0,
                 lastActive = java.util.Date().time/1000
