@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       topic_name:
-        description: '请输入你要打包的校区主题名 (例如: sc_137)'
+        description: '1. 请输入你要打包的校区主题名 (英文字母，如: sc_137)'
         required: true
         default: 'sc_'
+      display_name:
+        description: '2. 请输入App里显示的中文名称 (如: 石河子职业技术大学(主校区))'
+        required: true
+        default: ''
 
 jobs:
   build:
@@ -22,14 +26,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Inject Dynamic Topic
+      - name: Inject Dynamic Topic and Display Name
         run: |
           sed -i "s/BUILD_TIME_TOPIC_PLACEHOLDER/${{ github.event.inputs.topic_name }}/g" app/src/main/java/io/heckel/ntfy/ui/MainActivity.kt
+          sed -i "s/BUILD_TIME_DISPLAY_NAME_PLACEHOLDER/${{ github.event.inputs.display_name }}/g" app/src/main/java/io/heckel/ntfy/ui/MainActivity.kt
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 👇 修改点 1：使用官方正确的无谷歌服务版本编译任务：assembleFdroidRelease
       - name: Build APK (F-Droid Release)
         run: ./gradlew assembleFdroidRelease
 
@@ -37,5 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rider_apk_${{ github.event.inputs.topic_name }}
-          # 👇 修改点 2：导出路径也对应修改为 fdroid 文件夹
           path: app/build/outputs/apk/fdroid/release/*-unsigned.apk
